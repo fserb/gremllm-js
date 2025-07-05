@@ -41,7 +41,7 @@ class GremLLM {
       if (this._verbose) {
         console.log(`Generated code for ${methodName}:`);
         console.log(code);
-      }
+
 
       const result = this._executeCode(code, methodName, args);
 
