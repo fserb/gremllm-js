@@ -159,19 +159,6 @@ Code:`;
 
     return result;
   }
-
-  // Utility methods
-  getContext() {
-    return this._context;
-  }
-
-  setContext(context) {
-    this._context = { ...this._context, ...context };
-  }
-
-  getName() {
-    return this._name;
-  }
 }
 
 export default GremLLM;

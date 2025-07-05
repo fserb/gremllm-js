@@ -131,11 +131,6 @@ const stats = await player.getStats();
 - `model`: `string` - OpenAI model to use (default: 'gpt-4')
 - `apiUrl`: `string` - API endpoint URL (default: OpenAI's endpoint)
 
-## Utility Methods
-
-- `getContext()`: Returns the current internal state
-- `setContext(context)`: Merges provided context with current state
-- `getName()`: Returns the object's identity name
 
 ## Credits
 
