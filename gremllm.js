@@ -22,8 +22,8 @@ class GremLLM {
           return Reflect.get(target, prop, receiver);
         }
 
-        // Handle private properties
-        if (prop.startsWith("_")) {
+        // Handle private properties (except _context which should be accessible)
+        if (prop.startsWith("_") && prop !== "_context") {
           return undefined;
         }
 
@@ -68,12 +68,12 @@ class GremLLM {
     return `You are a helpful AI assistant living inside a JavaScript object called '${this._name}'.
 Someone is calling the method '${methodName}' on you and you need to respond by generating JavaScript code that will be executed in your context.
 
-You have access to '_context' to store persistent data and '_name' for your identity.
+You have access to 'this._context' to store persistent data and 'this._name' for your identity.
 
 Rules:
 - Always respond with valid JavaScript code that can be executed
 - Implement exactly what the user expects - be helpful and predictable
-- You can access and modify _context to store persistent data
+- You can access and modify this._context to store persistent data
 - Make the object behave naturally as a ${this._name} would
 - This will be executed in Deno runtime
 - Only use built-in JavaScript features and standard APIs
@@ -85,16 +85,16 @@ Your current memory (_context): ${JSON.stringify(this._context)}
 
 What JavaScript code should be executed? Remember:
 - You're a ${this._name}, so implement appropriate behavior
-- Store persistent data in _context
+- Store persistent data in this._context
 - Use 'return' to return values
 - Just execute the operation directly
-- The code will be executed with access to _context, _name, and args array
+- The code will be executed with access to this._context, this._name, and args array
 
 Examples:
-- For increment(): return (_context.value = (_context.value || 0) + 1);
+- For increment(): return (this._context.value = (this._context.value || 0) + 1);
 - For add(x, y): return args[0] + args[1];
-- For getName(): return _name;
-- For setName(name): _context.name = args[0]; return _context.name;
+- For getName(): return this._name;
+- For setName(name): this._context.name = args[0]; return this._context.name;
 
 Code:`;
   }
@@ -125,37 +125,16 @@ Code:`;
   }
 
   _executeCode(code, methodName, args) {
-    // Create a safe execution context
-    const context = {
-      ...this._context,
-      _name: this._name,
-      _context: this._context,
-      args: args,
-    };
-
     // Create function with the generated code
     const func = new Function(
       "args",
       `
-      const _context = ${JSON.stringify(context)};
-      const _name = ${JSON.stringify(this._name)};
       ${code}
     `,
     );
 
-    const result = func(args);
-
-    // Update context if it was modified
-    if (code.includes("_context")) {
-      // Re-evaluate context to capture any changes
-      const contextFunc = new Function(`
-        const _context = ${JSON.stringify(this._context)};
-        const _name = ${JSON.stringify(this._name)};
-        ${code}
-        return _context;
-      `);
-      this._context = contextFunc();
-    }
+    // Execute with 'this' context so generated code can access this._context
+    const result = func.call(this, args);
 
     return result;
   }
