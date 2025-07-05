@@ -1,6 +1,6 @@
 # GremLLM for Deno
 
-A JavaScript/Deno implementation inspired by the Python [gremllm](https://github.com/awwaiid/gremllm) library. This library allows you to create dynamic objects that generate methods and behavior on-the-fly using Large Language Models.
+This library allows you to create dynamic objects that generate methods and behavior on-the-fly using LLMs.
 
 ## What is GremLLM?
 
